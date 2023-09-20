@@ -8,6 +8,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/ZLHealthComponent.h"
+#include "Components/ZLStaminaComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -33,23 +36,19 @@ AZLDefaultCharacter::AZLDefaultCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+
+	HealthComponent = CreateDefaultSubobject<UZLHealthComponent>("HealthComponent");
+	StaminaComponent = CreateDefaultSubobject<UZLStaminaComponent>("StaminaComponent");
 }
 
 // Called every frame
 void AZLDefaultCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (PC)
+
+	if (!(HealthComponent->IsDead()))
 	{
-		FHitResult ResultHit;
-		PC->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
-		float FindRotatorResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
-		SetActorRotation(FQuat(FRotator(0.0f, FindRotatorResultYaw, 0.0f)));
-		if (CurrentCursor)
-		{
-			CurrentCursor->SetWorldLocation(ResultHit.Location);
-		}
+		RotationPlayerOnCursor();
 	}
 }
 
@@ -62,6 +61,9 @@ void AZLDefaultCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis("MoveRight", this, &AZLDefaultCharacter::MoveRight);
 
 	PlayerInputComponent->BindAxis("Zoom", this, &AZLDefaultCharacter::Zoom);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AZLDefaultCharacter::Sprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AZLDefaultCharacter::Jog);
 }
 
 // Called when the game starts or when spawned
@@ -73,6 +75,13 @@ void AZLDefaultCharacter::BeginPlay()
 	{
 		CurrentCursor = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), CursorMaterial, CursorSize, FVector(0));
 	}
+
+	OnHealthChanged(HealthComponent->GetHealth());
+	HealthComponent->OnDeath.AddUObject(this, &AZLDefaultCharacter::OnDeath);
+	HealthComponent->OnHealthChanged.AddUObject(this, &AZLDefaultCharacter::OnHealthChanged);
+
+	OnStaminaChanged(StaminaComponent->GetStamina());
+	StaminaComponent->OnStaminaChanged.AddUObject(this, &AZLDefaultCharacter::OnStaminaChanged);
 }
 
 void AZLDefaultCharacter::MoveForward(float Value)
@@ -94,3 +103,82 @@ void AZLDefaultCharacter::Zoom(float Value)
 		armLen += Value;
 }
 
+void AZLDefaultCharacter::RotationPlayerOnCursor()
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PC)
+	{
+		FHitResult ResultHit;
+		PC->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
+		float FindRotatorResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
+		SetActorRotation(FQuat(FRotator(0.0f, FindRotatorResultYaw, 0.0f)));
+		if (CurrentCursor)
+		{
+			CurrentCursor->SetWorldLocation(ResultHit.Location);
+		}
+	}
+}
+
+void AZLDefaultCharacter::OnHealthChanged(float NewHealth) 
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
+}
+
+void AZLDefaultCharacter::OnStaminaChanged(float NewStamina) 
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Stamina = %f"), NewStamina));
+}
+
+void AZLDefaultCharacter::OnDeath() 
+{
+	CurrentCursor->DestroyRenderState_Concurrent();
+	PlayAnimMontage(DeathMontage);
+	GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(5.0f);
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
+}
+
+void AZLDefaultCharacter::Sprint() 
+{
+	isSprint = true;
+
+	GetWorldTimerManager().SetTimer(StaminaDecreaseTimer, this, &AZLDefaultCharacter::DecreaseStamina, 1.0f, true);
+	GetWorldTimerManager().ClearTimer(StaminaIncreaseTimer);
+	GetCharacterMovement()->MaxWalkSpeed = CurrMaxWalkSpeed;
+}
+
+void AZLDefaultCharacter::Jog()
+{
+	isSprint = false;
+
+	GetCharacterMovement()->MaxWalkSpeed = CurrMinWalkSpeed;
+	GetWorldTimerManager().ClearTimer(StaminaDecreaseTimer);
+	GetWorldTimerManager().SetTimer(StaminaIncreaseTimer, this, &AZLDefaultCharacter::IncreaseStamina, 1.0f, true);
+}
+
+void AZLDefaultCharacter::DecreaseStamina() 
+{
+	if (StaminaComponent->IsFatigue())
+	{
+		GetWorldTimerManager().ClearTimer(StaminaDecreaseTimer);
+		isSprint = false;
+		GetCharacterMovement()->MaxWalkSpeed = CurrMinWalkSpeed;
+		return;
+	}
+
+	StaminaComponent->ChangeStamina(-20.0f);
+}
+
+void AZLDefaultCharacter::IncreaseStamina() 
+{
+	if (StaminaComponent->IsFullStamina())
+	{
+		GetWorldTimerManager().ClearTimer(StaminaIncreaseTimer);
+		return;
+	}
+
+	StaminaComponent->ChangeStamina(10.0f);
+}
