@@ -2,15 +2,19 @@
 
 
 #include "Player/ZLDefaultCharacter.h"
+
 #include "Camera/CameraComponent.h"
-#include "Components/DecalComponent.h"
-#include "Components/InputComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "Components/ZLHealthComponent.h"
 #include "Components/ZLStaminaComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/DecalComponent.h"
+#include "Components/InputComponent.h"
+#include "Components/ZLStaminaComponent.h"
+#include "Components/ZLWeaponComponent.h"
 
 
 // Sets default values
@@ -39,6 +43,8 @@ AZLDefaultCharacter::AZLDefaultCharacter()
 
 	HealthComponent = CreateDefaultSubobject<UZLHealthComponent>("HealthComponent");
 	StaminaComponent = CreateDefaultSubobject<UZLStaminaComponent>("StaminaComponent");
+
+	WeaponComponent = CreateDefaultSubobject<UZLWeaponComponent>("Weapon");
 }
 
 // Called every frame
@@ -64,6 +70,10 @@ void AZLDefaultCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AZLDefaultCharacter::Sprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AZLDefaultCharacter::Jog);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UZLWeaponComponent::Fire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &UZLWeaponComponent::StopFire);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UZLWeaponComponent::Reload);
 }
 
 // Called when the game starts or when spawned
@@ -96,7 +106,6 @@ void AZLDefaultCharacter::MoveRight(float Value)
 
 void AZLDefaultCharacter::Zoom(float Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("Zoom %f"), Value);
 	float& armLen = SpringArmComponent->TargetArmLength;
 
 	if (armLen + Value <= ArmLengthMax && armLen + Value >= ArmLengthMin)

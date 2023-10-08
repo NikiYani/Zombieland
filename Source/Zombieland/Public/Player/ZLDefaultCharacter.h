@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UZLHealthComponent;
 class UZLStaminaComponent;
 class UAnimMontage;
+class UZLWeaponComponent;
 
 UCLASS()
 class ZOMBIELAND_API AZLDefaultCharacter : public ACharacter
@@ -21,17 +22,17 @@ public:
 	// Sets default values for this character's properties
 	AZLDefaultCharacter();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	UFUNCTION()
 	UZLHealthComponent* GetHealthComponent() const { return HealthComponent; } 
 
 	UFUNCTION()
 	bool GetSprint() const { return isSprint; }
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -70,6 +71,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	float CurrMinWalkSpeed = 300.0f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UZLWeaponComponent* WeaponComponent;
+
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -82,7 +86,7 @@ private:
 	void Jog();
 	void DecreaseStamina();
 	void IncreaseStamina();
-
+	
 	FTimerHandle StaminaDecreaseTimer;
 	FTimerHandle StaminaIncreaseTimer;
 
