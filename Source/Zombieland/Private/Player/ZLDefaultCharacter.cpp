@@ -130,12 +130,12 @@ void AZLDefaultCharacter::RotationPlayerOnCursor()
 
 void AZLDefaultCharacter::OnHealthChanged(float NewHealth) 
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
 }
 
 void AZLDefaultCharacter::OnStaminaChanged(float NewStamina) 
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Stamina = %f"), NewStamina));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Stamina = %f"), NewStamina));
 }
 
 void AZLDefaultCharacter::OnDeath() 
@@ -154,7 +154,7 @@ void AZLDefaultCharacter::Sprint()
 {
 	isSprint = true;
 
-	GetWorldTimerManager().SetTimer(StaminaDecreaseTimer, this, &AZLDefaultCharacter::DecreaseStamina, 1.0f, true);
+	GetWorldTimerManager().SetTimer(StaminaDecreaseTimer, this, &AZLDefaultCharacter::DecreaseStamina, 0.01f, true);
 	GetWorldTimerManager().ClearTimer(StaminaIncreaseTimer);
 	GetCharacterMovement()->MaxWalkSpeed = CurrMaxWalkSpeed;
 }
@@ -165,7 +165,7 @@ void AZLDefaultCharacter::Jog()
 
 	GetCharacterMovement()->MaxWalkSpeed = CurrMinWalkSpeed;
 	GetWorldTimerManager().ClearTimer(StaminaDecreaseTimer);
-	GetWorldTimerManager().SetTimer(StaminaIncreaseTimer, this, &AZLDefaultCharacter::IncreaseStamina, 1.0f, true);
+	GetWorldTimerManager().SetTimer(StaminaIncreaseTimer, this, &AZLDefaultCharacter::IncreaseStamina, 0.01f, true);
 }
 
 void AZLDefaultCharacter::DecreaseStamina() 
@@ -178,7 +178,7 @@ void AZLDefaultCharacter::DecreaseStamina()
 		return;
 	}
 
-	StaminaComponent->ChangeStamina(-20.0f);
+	StaminaComponent->ChangeStamina(-0.25f);
 }
 
 void AZLDefaultCharacter::IncreaseStamina() 
@@ -189,5 +189,5 @@ void AZLDefaultCharacter::IncreaseStamina()
 		return;
 	}
 
-	StaminaComponent->ChangeStamina(10.0f);
+	StaminaComponent->ChangeStamina(0.125f);
 }

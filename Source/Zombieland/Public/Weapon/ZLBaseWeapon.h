@@ -37,6 +37,7 @@ public:
 	bool IsClipFull() const;
 
 	int32 GetBullets() const { return CurrentAmmoWeapon.Bullets; }
+	FAmmoWeapon GetCurrentAmmoWeapon() const { return CurrentAmmoWeapon; }
 
 	virtual void Tick(float DeltaTime) override;
 

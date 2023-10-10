@@ -45,6 +45,16 @@ void UZLWeaponComponent::BeginPlay()
 	InitAnimNotify();
 }
 
+bool UZLWeaponComponent::GetCurrentWeaponAmmo(FAmmoWeapon& AmmoWeapon) const
+{
+	if (Weapon)
+	{
+		AmmoWeapon = Weapon->GetCurrentAmmoWeapon();
+		return true;
+	}
+	return false;
+}
+
 
 void UZLWeaponComponent::SpawnWeapon() 
 {
@@ -114,7 +124,7 @@ bool UZLWeaponComponent::CanReload() const
 
 void UZLWeaponComponent::OnBulletsChanged(int32 NewBullets) 
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Bullets = %d"), NewBullets));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Bullets = %d"), NewBullets));
 }
 
 // Called every frame
