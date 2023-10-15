@@ -56,6 +56,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	void Shoot();
+	
+	void SpawnTrace(const FVector& TraceStart, const FVector& TraceEnd);
+
+	void MakeDamage(const FHitResult& HitResult);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	USkeletalMeshComponent* WeaponComponent;
@@ -77,5 +81,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FString TraceName = "Tracer";
 
-	void SpawnTrace(const FVector& TraceStart, const FVector& TraceEnd);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	float Damage = 20;
+
 };

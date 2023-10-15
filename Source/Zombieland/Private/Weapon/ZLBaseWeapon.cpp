@@ -79,8 +79,15 @@ void AZLBaseWeapon::Shoot()
 	FVector TracerEnd = TraceEnd;
 	if (HitResult.bBlockingHit)
 	{
+		MakeDamage(HitResult);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("DAMAGE!"));	
 		TracerEnd = HitResult.ImpactPoint;
 	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "miss");
+	}
+
 	SpawnTrace(TraceStart, TracerEnd);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShootWave, TraceStart);
 
@@ -94,5 +101,22 @@ void AZLBaseWeapon::SpawnTrace(const FVector& TraceStart, const FVector& TraceEn
 	{
 		TraceFX->SetNiagaraVariableVec3(TraceName, TraceEnd);
 	}
+}
+
+void AZLBaseWeapon::MakeDamage(const FHitResult& HitResult) 
+{
+	const auto Zombie = HitResult.GetActor();
+	if (!Zombie)
+		return;
+	
+	const auto Pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!Pawn)
+		return;
+
+	const auto Controller = Pawn->GetController<APlayerController>();
+	if (!Controller)
+		return;
+
+	Zombie->TakeDamage(Damage, FDamageEvent(), Controller, this);
 }
 

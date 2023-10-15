@@ -26,7 +26,7 @@ void UZLWeaponComponent::Fire()
 	{
 		Weapon->Fire();
 		const auto Character = Cast<ACharacter>(GetOwner());
-		Character->GetWorldTimerManager().SetTimer(FireTimer, Weapon, &AZLBaseWeapon::Fire, 0.3f, true);
+		Character->GetWorldTimerManager().SetTimer(FireTimer, Weapon, &AZLBaseWeapon::Fire, 0.1f, true);
 	}
 }
 

@@ -144,10 +144,10 @@ void AZLDefaultCharacter::OnDeath()
 	PlayAnimMontage(DeathMontage);
 	GetCharacterMovement()->DisableMovement();
 	SetLifeSpan(5.0f);
-	if (Controller)
-	{
-		Controller->ChangeState(NAME_Spectating);
-	}
+	//if (Controller)
+	//{
+	//	Controller->ChangeState(NAME_Spectating);
+	//}
 }
 
 void AZLDefaultCharacter::Sprint() 
