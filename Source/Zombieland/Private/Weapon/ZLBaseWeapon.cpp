@@ -80,12 +80,7 @@ void AZLBaseWeapon::Shoot()
 	if (HitResult.bBlockingHit)
 	{
 		MakeDamage(HitResult);
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("DAMAGE!"));	
 		TracerEnd = HitResult.ImpactPoint;
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "miss");
 	}
 
 	SpawnTrace(TraceStart, TracerEnd);

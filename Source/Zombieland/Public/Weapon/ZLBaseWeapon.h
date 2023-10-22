@@ -68,7 +68,7 @@ protected:
 	float TraceDistance = 800.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	FAmmoWeapon AmmoWeapon{30, 0, true};
+	FAmmoWeapon AmmoWeapon{60, 0, true};
 
 	FAmmoWeapon CurrentAmmoWeapon;
 
