@@ -8,7 +8,7 @@ This project aims to gain skills in game development on UE 5. Try the opportunit
 
 A bit of gameplay (more images can be viewed in the [Arts](https://github.com/NikiYani/Zombieland/tree/master/Arts) folder):
 
-![Alt text](Arts/Zombieland.gif)
+![Alt text](Arts/Zombieland-small.gif)
 
 ------
 
